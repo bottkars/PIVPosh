@@ -1,7 +1,8 @@
 # PIVPosh
-PIVShell is a Powershell integration of the Pivotal (Download) API
+PIVPosh is a Powershell integration of the Pivotal (Download) API
 it allows you to Dynamically retrieve content from Pivotal Network
 
+![piv posh overview](https://user-images.githubusercontent.com/8255007/42770899-c4aacc26-8925-11e8-8566-ff6dfd50d50c.gif)  
 ## Getting started
 PIVPosh is available from the Powershell Gallery.  
 Install the Module with Install-Module command.  
