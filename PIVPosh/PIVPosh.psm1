@@ -88,7 +88,6 @@ function Get-PIVFilebyReleaseObject {
     }
     process {
         $releaseobject
-        pause
         Write-Verbose $headers
         $file = Split-Path -Leaf $releaseobject.aws_object_key
         Write-Host "Downloading $file"
