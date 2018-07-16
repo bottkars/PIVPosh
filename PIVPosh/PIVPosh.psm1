@@ -1,7 +1,7 @@
 ﻿$BaseURI = 'https://network.pivotal.io'
 $Uri = $BaseUri + '/api/v2/authentication'
 ###
-function Get-PCFProducts {
+function Get-PIVProducts {
     $Uri = $BaseURI + "/api/v2/products"
     $method = "GET"
     $response = Invoke-WebRequest -Method $Method -Uri $URI -Headers $headers -ContentType $ContentType
@@ -10,7 +10,7 @@ function Get-PCFProducts {
     Write-Output  $slugs
 }
 ###releases
-function Get-PCFRelease {
+function Get-PIVRelease {
     param(
         [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]$id)
     begin {
@@ -27,7 +27,7 @@ function Get-PCFRelease {
 }
 ### GET /api/v2/products/:product_slug/releases/:id
 ###releases
-function Get-PCFFileReleaseId {
+function Get-PIVFileReleaseId {
     param(
         [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]$slugid,
         [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]$id)
@@ -44,7 +44,7 @@ function Get-PCFFileReleaseId {
 ## transfer files
 ## /api/v2/products/:product_slug/releases/:release_id/product_files/:id/download
 ### releases
-function Get-PCFfile {
+function Get-PIVfile {
     param(
         [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]$slugid,
         [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]$id)
@@ -53,7 +53,7 @@ function Get-PCFfile {
     $response = Invoke-WebRequest -Method $Method -Uri $URI -Headers $headers   -ContentType $ContentType
     Write-Output ($response.Content |ConvertFrom-Json).Product_files
 }
-function Get-PCFFileByUri {
+function Get-PIVFileByUri {
     param(
         $downloaduri = "https://network.pivotal.io/api/v2/products/stemcells/releases/129488/product_files/161630/download",
         $object_key = "product_files/Pivotal-CF/bosh-stemcell-3445.51-azure-hyperv-ubuntu-trusty-go_agent.tgz",
@@ -72,7 +72,7 @@ function Get-PCFFileByUri {
     $uri = $downloaduri
     invoke-WebRequest -Method $Method -Uri $URI -Headers $headers   -OutFile "$HOME/Downloads/$file"
 }
-function Get-PCFFilebyReleaseObject {
+function Get-PIVFilebyReleaseObject {
     [CmdletBinding(HelpUri = "")]
     param(
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)][array]$releaseobject,
@@ -98,7 +98,7 @@ function Get-PCFFilebyReleaseObject {
     }
     end {}
 }
-function Get-PCFaccesstoken {
+function Get-PIVaccesstoken {
     param(
         # the refres token provided from your Pivotal Net Profile
         [Parameter(Mandatory = $true)]
@@ -114,7 +114,7 @@ function Get-PCFaccesstoken {
     $response = Invoke-WebRequest -Method $Method -Uri $URI -Headers $headers  -Body $Body
     Write-Output $response.Content | ConvertFrom-Json
 }
-function Confirm-PCFEula {
+function Confirm-PIVEula {
     param(
         [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]$slugid,
         [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]$id,
@@ -134,12 +134,12 @@ function Confirm-PCFEula {
     }
     end{}
 }
-function Get-PCFSlug {
+function Get-PIVSlug {
     [CmdletBinding(HelpUri = "")]
     param (
     )
     DynamicParam {
-        $slugs = Get-PCFproducts
+        $slugs = Get-PIVproducts
         $sluglist = @()
         foreach ($product in $slugs) {
             $sluglist += $product.name
