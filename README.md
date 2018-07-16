@@ -5,7 +5,9 @@ it allows you to Dynamically retrieve content from Pivotal Network
 ## Getting started
 
 ### install PIVPosh
-
+```Powershell
+Install-Module PIVPosh -Scope CurrentUser -Force
+```
 ### load the Module
 
 ```Powershell
