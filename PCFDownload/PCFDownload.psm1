@@ -118,7 +118,7 @@ function Confirm-PCFEula {
     param(
         [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]$slugid,
         [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]$id,
-        $access_token
+        [Parameter(Mandatory = $true)]$access_token
     )
     begin{}
     process{
