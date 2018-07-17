@@ -36,6 +36,17 @@ Get-PIVSlug -Name 'Pivotal Container Service (PKS)'
 ```
 ![picslug](https://user-images.githubusercontent.com/8255007/42769723-562dd72c-8923-11e8-91c6-38baad87af10.gif)
 
-```Powershell
 
+## example
+get all releses for a specific version of a product
+```Powershell
+Get-PIVSlug -Name 'Pivotal Cloud Foundry Operations Manager' | Get-PIVRelease | where version -ge 2.2
 ```
+
+
+## example
+retrive specific files without EULA requirement
+```Powershell
+ Get-PIVSlug -Name 'Pivotal Cloud Foundry Operations Manager' | Get-PIVRelease | where version -ge 2.2 | Get-PIVFileReleaseId | where name -match azure | Get-PIVFilebyReleaseObject -access_token $token
+```
+
