@@ -37,15 +37,16 @@ Get-PIVSlug -Name 'Pivotal Container Service (PKS)'
 ![picslug](https://user-images.githubusercontent.com/8255007/42769723-562dd72c-8923-11e8-91c6-38baad87af10.gif)
 
 ### retrieving an access token
-to retrieve files or accept EULS´s, you need to have an access token.
+to retrieve files or accept EULAS´s, you need to have an access token.
 the access token can be retrieved by using the refresh token from your pivotal network account 
 
 ![image](https://user-images.githubusercontent.com/8255007/42865602-76306fec-8a6a-11e8-97ef-d3b483035ad4.png)
 
+once retrieved your refresh token, retrieve an access token:
+
 ```Powershell
 $token = Get-PIVaccesstoken -refresh_token XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX-r
 ```
-
 ## examples
 ### get all releses for a specific version of a product
 ```Powershell
