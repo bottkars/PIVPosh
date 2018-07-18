@@ -36,16 +36,30 @@ Get-PIVSlug -Name 'Pivotal Container Service (PKS)'
 ```
 ![picslug](https://user-images.githubusercontent.com/8255007/42769723-562dd72c-8923-11e8-91c6-38baad87af10.gif)
 
+### retrieving an access token
+to retrieve files or accept EULS´s, you need to have an access token.
+the access token can be retrieved by using the refresh token from your pivotal network account 
 
-## example
-get all releses for a specific version of a product
+![image](https://user-images.githubusercontent.com/8255007/42865602-76306fec-8a6a-11e8-97ef-d3b483035ad4.png)
+
+```Powershell
+$token = Get-PIVaccesstoken -refresh_token XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX-r
+```
+
+## examples
+### get all releses for a specific version of a product
 ```Powershell
 Get-PIVSlug -Name 'Pivotal Cloud Foundry Operations Manager' | Get-PIVRelease | where version -ge 2.2
 ```
 
+### download specific version for stemcell´s
+in the below example, the commands download specific stemcell´s for Azure / AzureStack
+```Powershell
+foreach ($version in '3586.26','3541.36','3445.54') {Get-PIVSlug -Name 'Stemcells for PCF' | Get-PIVRelease | where version -match $version | Get-PIVFileReleaseId | where name -match hyperv | Get-PIVFilebyReleaseObject -access_token $token}
+```
 
-## example
-retrive specific files without EULA requirement
+
+### retrieve specific files without EULA requirement
 ```Powershell
  Get-PIVSlug -Name 'Pivotal Cloud Foundry Operations Manager' | Get-PIVRelease | where version -ge 2.2 | Get-PIVFileReleaseId | where name -match azure | Get-PIVFilebyReleaseObject -access_token $token
 ```
