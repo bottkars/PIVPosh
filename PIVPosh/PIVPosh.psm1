@@ -4,7 +4,7 @@ $Uri = $BaseUri + '/api/v2/authentication'
 function Get-PIVProducts {
     $Uri = $BaseURI + "/api/v2/products"
     $method = "GET"
-    $response = Invoke-WebRequest -Method $Method -Uri $URI -Headers $headers -ContentType $ContentType
+    $response = Invoke-WebRequest -Method $Method -Uri $URI -Headers $Global:PivHeaders -ContentType $ContentType
     ## retain slug´s
     $slugs = ($response.Content | ConvertFrom-Json).products | Select-Object name, slug, id
     Write-Output  $slugs
@@ -16,10 +16,11 @@ function Get-PIVRelease {
     begin {
     }
     process {
+        
         $uri = $BaseURI + "/api/v2/products/$id/releases"
         $method = "GET"
-        $response = Invoke-WebRequest -Method $Method -Uri $URI -Headers $headers   -ContentType $ContentType
-        $Release = ($response.Content | ConvertFrom-Json).releases | Select-Object -Property @{N="slugid";E={$id}},* # -ExcludeProperty eula,_links,release_notes_url
+        $response = Invoke-WebRequest -Method $Method -Uri $URI -Headers $Global:PivHeaders   -ContentType $ContentType
+        $Release = ($response.Content | ConvertFrom-Json).releases | Select-Object -Property @{N = "slugid"; E = { $id } }, * # -ExcludeProperty eula,_links,release_notes_url
         Write-Output $release
     }
     end {
@@ -31,15 +32,15 @@ function Get-PIVFileReleaseId {
     param(
         [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]$slugid,
         [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]$id)
-    begin {}
+    begin { }
     process {
         $method = 'GET'
         $uri = $BaseURI + "/api/v2/products/$slugid/releases/$id"
-        $response = Invoke-WebRequest -Method $Method -Uri $URI -Headers $headers   -ContentType $ContentType
-        $releseID = ($response.Content |ConvertFrom-Json).Product_files
+        $response = Invoke-WebRequest -Method $Method -Uri $URI -Headers $Global:PivHeaders   -ContentType $ContentType
+        $releseID = ($response.Content | ConvertFrom-Json).Product_files
         $releseID | Select-Object * -ExpandProperty _links
     }
-    end {}
+    end { }
 }
 ## transfer files
 ## /api/v2/products/:product_slug/releases/:release_id/product_files/:id/download
@@ -50,8 +51,8 @@ function Get-PIVfile {
         [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]$id)
     $method = 'GET'
     $uri = $BaseURI + "/api/v2/products/$slugid/releases/$release_id/product_files/$id/download"
-    $response = Invoke-WebRequest -Method $Method -Uri $URI -Headers $headers   -ContentType $ContentType
-    Write-Output ($response.Content |ConvertFrom-Json).Product_files
+    $response = Invoke-WebRequest -Method $Method -Uri $URI -Headers $Global:PivHeaders   -ContentType $ContentType
+    Write-Output ($response.Content | ConvertFrom-Json).Product_files
 }
 function Get-PIVFileByUri {
     param(
@@ -59,43 +60,33 @@ function Get-PIVFileByUri {
         $object_key = "product_files/Pivotal-CF/bosh-stemcell-3445.51-azure-hyperv-ubuntu-trusty-go_agent.tgz",
         $access_token
     )
-    $headers = @{'Accept' = "application/json"
-        'Authorization' = "Bearer $access_token"
-        'Content-Length' = 0
-        'Content-Type' = "application/json"
-        'Host' = "network.pivotal.io"
-    }
-    $headers
+    Write-Warning "access_token Parameter will be deprecated in next version"
     $file = Split-Path -Leaf $object_key
     Write-Output $file
     $method = 'GET'
     $uri = $downloaduri
-    invoke-WebRequest -Method $Method -Uri $URI -Headers $headers   -OutFile "$HOME/Downloads/$file"
+    Invoke-WebRequest -Method $Method -Uri $URI -Headers $Global:PivHeaders   -OutFile "$HOME/Downloads/$file"
 }
 function Get-PIVFilebyReleaseObject {
     [CmdletBinding(HelpUri = "")]
     param(
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)][array]$releaseobject,
-        [Parameter(Mandatory = $true)]$access_token
+        [Parameter(Mandatory = $false)]$access_token
     )
     begin {
-        $headers = @{'Accept' = "application/json"
-            'Authorization' = "Bearer $($access_token.access_token)"
-            'Content-Length' = 0
-            'Content-Type' = "application/json"
-            'Host' = "network.pivotal.io"
-        }
+        Write-Warning "access_token Parameter will be deprecated in next version"
+
     }
     process {
         $releaseobject
-        Write-Verbose $headers
+        Write-Verbose $Global:PivHeaders
         $file = Split-Path -Leaf $releaseobject.aws_object_key
         Write-Host "Downloading $file"
         $method = 'GET'
         $uri = $releaseobject.download.href
-        invoke-WebRequest -Method $Method -Uri $URI -Headers $headers   -OutFile "$HOME/Downloads/$file"
+        Invoke-WebRequest -Method $Method -Uri $URI -Headers $Global:PivHeaders   -OutFile "$HOME/Downloads/$file"
     }
-    end {}
+    end { }
 }
 function Get-PIVaccesstoken {
     param(
@@ -105,40 +96,51 @@ function Get-PIVaccesstoken {
         $refresh_token
     )
     $Method = 'POST'
-    $Body = @{'refresh_token' = $refresh_token} | ConvertTo-Json
+    $Body = @{'refresh_token' = $refresh_token } | ConvertTo-Json
     $Uri = $BaseUri + "/api/v2/authentication/access_tokens"
     $Headers = @{'Accept' = "text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5"
-        'Content-Type' = "application/x-www-form-urlencoded"
+        'Content-Type'    = "application/x-www-form-urlencoded"
     }
     $response = Invoke-WebRequest -Method $Method -Uri $URI -Headers $headers  -Body $Body
+    $access_token = $response.Content | ConvertFrom-Json
+    $Global:PivHeaders = @{'Accept' = "application/json"
+        'Authorization'             = "Bearer $($access_token.access_token)"
+        'Content-Length'            = 0
+        'Content-Type'              = "application/json"
+        'Host'                      = "network.pivotal.io"
+        }
+    Write-Verbose $Global:PivHeaders    
     Write-Output $response.Content | ConvertFrom-Json
 }
 function Confirm-PIVEula {
     param(
         [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]$slugid,
         [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]$id,
-        [Parameter(Mandatory = $true)]$access_token
+        [Parameter(Mandatory = $false)]$access_token
     )
-    begin{}
-    process{
-    $Method = 'POST'
-    $URI = $BaseURI + "/api/v2/products/$slugid/releases/$id/eula_acceptance"
-    $headers = @{'Accept' = "application/json"
-        'Authorization' = "Bearer $($access_token.access_token)"
-        'Content-Length' = 0
-        'Content-Type' = "application/json"
-        'Host' = "network.pivotal.io"
+    begin { 
+        Write-Warning "access_token Parameter will be deprecated in next version"
+
     }
-    Invoke-WebRequest -Method $Method -Uri $URI -Headers $headers
+    process {
+        $Method = 'POST'
+        $URI = $BaseURI + "/api/v2/products/$slugid/releases/$id/eula_acceptance"
+        $headers = @{'Accept' = "application/json"
+            'Authorization'   = "Bearer $($access_token.access_token)"
+            'Content-Length'  = 0
+            'Content-Type'    = "application/json"
+            'Host'            = "network.pivotal.io"
+        }
+        Invoke-WebRequest -Method $Method -Uri $URI -Headers $Global:PivHeaders
     }
-    end{}
+    end { }
 }
 function Get-PIVSlug {
     [CmdletBinding(HelpUri = "")]
     param (
     )
     DynamicParam {
-        $slugs = Get-PIVproducts
+        $slugs = Get-PIVProducts
         $sluglist = @()
         foreach ($product in $slugs) {
             $sluglist += $product.name
