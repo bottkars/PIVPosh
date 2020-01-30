@@ -42,6 +42,43 @@ function Get-PIVFileReleaseId {
     }
     end { }
 }
+
+## GET /api/v2/products/:product_slug/file_groups
+
+function Get-PIVFileGroups {
+    param(
+        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]$slugid
+    )
+    begin { }
+    process {
+        $method = 'GET'
+        $uri = $BaseURI + "/api/v2/products/$slugid/file_groups"
+        $response = Invoke-WebRequest -Method $Method -Uri $URI -Headers $Global:PivHeaders  -ContentType $ContentType
+        # $releseID = ($response.Content | ConvertFrom-Json).Product_files
+        # $releseID | Select-Object * -ExpandProperty _links
+        $response
+    }
+    end { }
+}
+# GET /api/v2/products/:product_slug/releases/:release_id/dependencies
+
+function Get-PIVFileReleaseDependencies {
+    param(
+        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]$slugid,
+        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]$id)
+    begin { }
+    process {
+        $method = 'GET'
+        $uri = $BaseURI + "/api/v2/products/$slugid/releases/$id/dependencies"
+        $response = Invoke-WebRequest -Method $Method -Uri $URI -Headers $Global:PivHeaders   -ContentType $ContentType
+        # $releseID = ($response.Content | ConvertFrom-Json).Product_files
+        # $releseID | Select-Object * -ExpandProperty _links
+        write-output $RESPONSE
+    }
+    end { }
+}
+
+
 ## transfer files
 ## /api/v2/products/:product_slug/releases/:release_id/product_files/:id/download
 ### releases
